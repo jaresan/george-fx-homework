@@ -10,7 +10,7 @@ class App extends React.Component {
 
   componentDidMount() {
     const url = new URL(window.location);
-    const filterText = url.searchParams.get('search') || '';
+    const filterText = url.hash.slice(1);
     this.setState({filterText}, this.refreshData);
   }
 
@@ -28,7 +28,7 @@ class App extends React.Component {
 
   updateFilterText = e => {
     const filterText = e.target.value;
-    window.history.replaceState({}, '', filterText ? `?search=${filterText}` : '/');
+    window.location.hash = filterText;
     this.setState({filterText}, this.updateData);
   };
 
