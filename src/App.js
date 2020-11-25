@@ -1,30 +1,46 @@
 import React from 'react';
-import {Layout, Affix} from 'antd';
+import { Layout, Affix, message } from 'antd';
 import {CurrencyList} from './components/currency-list';
 import {PageHeader, PageTitle, PageBody, PageLogoContainer, SearchBar} from './App.styled';
 import { filterData } from './components/currency-list/fx-data';
 import { getFxData } from './constants/api';
 
 class App extends React.Component {
-  state = {filterText: '', currencyData: '', loading: true, data: []};
+  state = {filterText: '', currencyData: '', loading: true, filteredData: []};
 
   componentDidMount() {
-    this.refreshData();
+    const url = new URL(window.location);
+    const filterText = url.searchParams.get('search') || '';
+    this.setState({filterText}, this.refreshData);
   }
 
   refreshData = () =>
-    getFxData().then(data => {
-      this.data = data;
-      this.setState({data, loading: false})
-    })
+    getFxData()
+      .then(data => {
+        this.data = data;
+        this.updateData();
+      })
+      .catch(e => {
+        console.error(e);
+        message.error('There was an error downloading the data, please try again later.')
+      })
+      .finally(() => this.setState({loading: false}))
 
   updateFilterText = e => {
-    const text = e.target.value;
-    this.setState({data: filterData(this.data, text)});
+    const filterText = e.target.value;
+    window.history.replaceState({}, '', filterText ? `?search=${filterText}` : '/');
+    this.setState({filterText}, this.updateData);
   };
 
+  updateData = () => {
+    const {filterText} = this.state;
+
+    // Prevent input field typing lag
+    setTimeout(() => this.setState({filteredData: filterData(this.data, filterText)}));
+  }
+
   render() {
-    const {loading, data} = this.state;
+    const {loading, filteredData} = this.state;
     return (
       <Layout>
         <PageHeader>
@@ -35,9 +51,9 @@ class App extends React.Component {
         </PageHeader>
         <PageBody>
           <Affix>
-            <SearchBar onChange={this.updateFilterText}/>
+            <SearchBar onChange={this.updateFilterText} value={this.state.filterText}/>
           </Affix>
-          <CurrencyList data={this.state.data} loading={loading}/>
+          <CurrencyList data={filteredData} loading={loading}/>
         </PageBody>
       </Layout>
     );

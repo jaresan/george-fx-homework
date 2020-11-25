@@ -25,7 +25,7 @@ export const parseFxData = json => {
   }, []);
 }
 
-export const filterData = (data, filterText) => {
+export const filterData = (data, filterText = '') => {
   const lowerCase = filterText.toLowerCase();
   return data.filter(({searchTerm}) => searchTerm.includes(lowerCase));
 }
