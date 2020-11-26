@@ -6,7 +6,7 @@ import { filterData } from './components/currency-list/fx-data';
 import { getFxData } from './constants/api';
 
 class App extends React.Component {
-  state = {filterText: '', currencyData: '', loading: true, filteredData: []};
+  state = {filterText: '', currencyData: '', loading: true, filteredRows: []};
 
   componentDidMount() {
     const url = new URL(window.location);
@@ -16,8 +16,8 @@ class App extends React.Component {
 
   refreshData = () =>
     getFxData()
-      .then(data => {
-        this.data = data;
+      .then(({rows, baseCurrency}) => {
+        this.rows = rows;
         this.updateData();
       })
       .catch(e => {
@@ -36,11 +36,11 @@ class App extends React.Component {
     const {filterText} = this.state;
 
     // Prevent input field typing lag
-    setTimeout(() => this.setState({filteredData: filterData(this.data, filterText)}));
+    setTimeout(() => this.setState({filteredRows: filterData(this.rows, filterText)}));
   }
 
   render() {
-    const {loading, filteredData} = this.state;
+    const {loading, filteredRows} = this.state;
     return (
       <Layout>
         <PageHeader>
@@ -53,7 +53,7 @@ class App extends React.Component {
           <Affix>
             <SearchBar onChange={this.updateFilterText} value={this.state.filterText}/>
           </Affix>
-          <CurrencyList data={filteredData} loading={loading}/>
+          <CurrencyList data={filteredRows} loading={loading}/>
         </PageBody>
       </Layout>
     );
