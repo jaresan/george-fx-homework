@@ -2,11 +2,11 @@ import React from 'react';
 import { Layout, Affix, message } from 'antd';
 import {CurrencyList} from './components/currency-list';
 import {PageHeader, PageTitle, PageBody, PageLogoContainer, SearchBar} from './App.styled';
-import { filterData } from './components/currency-list/fx-data';
-import { getFxData } from './constants/api';
+import { filterData, parseFxData } from './components/currency-list/fx-data';
+import { getFxData } from './api/fx-data';
 
 class App extends React.Component {
-  state = {filterText: '', currencyData: '', loading: true, filteredRows: []};
+  state = {filterText: '', loading: true, filteredRows: []};
 
   componentDidMount() {
     const url = new URL(window.location);
@@ -16,7 +16,8 @@ class App extends React.Component {
 
   refreshData = () =>
     getFxData()
-      .then(({rows, baseCurrency}) => {
+      .then(parseFxData)
+      .then(({rows}) => {
         this.rows = rows;
         this.updateData();
       })

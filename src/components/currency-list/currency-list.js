@@ -11,6 +11,7 @@ const columns = [
     render: ({flagPath, name}) =>
       <CountryInfoContainer>
         <Image
+          alt="Flag image"
           preview={false}
           width={32}
           src={flagPath}
