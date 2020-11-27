@@ -12,24 +12,32 @@ const parseRemoteFxData = json => ({
   rates: map(getExchangeRate, indexBy(pipe(getCurrency, toLower), getFxData(json)))
 });
 
+const getSearchTerm = info => {
+  const {code, name, currency} = info;
+  return `${code} ${name} ${currency}`.toLowerCase();
+};
+
+const isValid = rates => ([code, {currency, name}]) => rates[(currency || '').toLowerCase()] && name;
+
+const getCountryRow = rates => ([code, info]) => {
+  const {currency, name} = info;
+  const rate = rates[currency.toLowerCase()];
+
+  return {
+    key: code,
+    info: {code, name, currency, flagPath: `flags/${code.toLowerCase()}.png`},
+    rates: rate,
+    searchTerm: getSearchTerm({code, ...info})
+  };
+};
+
 export const parseFxData = json => {
   const {rates, baseCurrency} = parseRemoteFxData(json);
 
-  return Object.entries(countryInfo).reduce((acc, [code, {currency, name}]) => {
-    const rate = rates[(currency || '').toLowerCase()];
-    if (!rate || !name) {
-      return acc;
-    }
-
-    acc.rows.push({
-      key: code,
-      info: {code, name, currency, flagPath: `flags/${code.toLowerCase()}.png`},
-      rates: rate,
-      searchTerm: `${code} ${name} ${currency}`.toLowerCase()
-    });
-
-    return acc;
-  }, {rows: [], baseCurrency});
+  return {
+    rows: Object.entries(countryInfo).filter(isValid(rates)).map(getCountryRow(rates)),
+    baseCurrency
+  };
 }
 
 export const filterData = (data, filterText = '') => {

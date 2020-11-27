@@ -15,12 +15,12 @@ const App = () => {
   const [filterText, setFilterText] = useState('');
   const rows = useRef([]);
 
-  const refreshData = () => {
+  const refreshData = (filterText) => {
     getFxData()
       .then(parseFxData)
       .then(({rows: data}) => {
         rows.current = data;
-        updateData();
+        updateData(filterText);
       })
       .catch(e => {
         console.error(e);
@@ -45,7 +45,7 @@ const App = () => {
     const url = new URL(window.location);
     const filterText = url.hash.slice(1);
     setFilterText(filterText)
-    refreshData();
+    refreshData(filterText);
     registerOnHashChange(onHashChange);
   }, []);
 
@@ -73,73 +73,5 @@ const App = () => {
     </Layout>
   );
 };
-
-
-// class App extends React.Component {
-//   state = {filterText: '', loading: true, filteredRows: []};
-//
-//   // componentDidMount() {
-//   //   const url = new URL(window.location);
-//   //   const filterText = url.hash.slice(1);
-//   //   this.setState({filterText}, this.refreshData);
-//   //   this.registerOnHashChange();
-//   // }
-//
-//   onHashChange = e => {
-//     const newUrl = new URL(e.newURL);
-//     const filterText = newUrl.hash.slice(1);
-//     this.setState({filterText}, this.updateData);
-//   };
-//
-//   registerOnHashChange() {
-//     window.onhashchange = this.onHashChange;
-//   }
-//
-//   // refreshData = () =>
-//   //   getFxData()
-//   //     .then(parseFxData)
-//   //     .then(({rows}) => {
-//   //       this.rows = rows;
-//   //       this.updateData();
-//   //     })
-//   //     .catch(e => {
-//   //       console.error(e);
-//   //       message.error('There was an error downloading the data, please try again later.')
-//   //     })
-//   //     .finally(() => this.setState({loading: false}))
-//
-//   // updateFilterText = e => {
-//   //   const filterText = e.target.value;
-//   //   window.location.hash = filterText;
-//   //   this.setState({filterText}, this.updateData);
-//   // };
-//
-//   // updateData = () => {
-//   //   const {filterText} = this.state;
-//   //
-//   //   // Prevent input field typing lag
-//   //   setTimeout(() => this.setState({filteredRows: filterData(this.rows, filterText)}));
-//   // }
-//
-//   // render() {
-//   //   const {loading, filteredRows} = this.state;
-//   //   return (
-//   //     <Layout>
-//   //       <PageHeader>
-//   //         <PageLogoContainer>
-//   //           <img src="/logo.svg" />
-//   //         </PageLogoContainer>
-//   //         <PageTitle>George FX Test</PageTitle>
-//   //       </PageHeader>
-//   //       <PageBody>
-//   //         <Affix>
-//   //           <SearchBar onChange={this.updateFilterText} value={this.state.filterText}/>
-//   //         </Affix>
-//   //         <CurrencyList data={filteredRows} loading={loading}/>
-//   //       </PageBody>
-//   //     </Layout>
-//   //   );
-//   // }
-// }
 
 export default App;
